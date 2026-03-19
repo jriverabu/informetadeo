@@ -6,16 +6,18 @@ export default {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-        playfair: ['Playfair Display', 'serif'],
-      },
       colors: {
-        tadeo: {
-          dark: '#3D1D11',
-          brown: '#633526',
-          accent: '#8B4513',
-          bg: '#FDF8F3',
+        chocolatier: {
+          50: '#fdf8f6',
+          100: '#f2e8e5',
+          200: '#eaddd7',
+          300: '#e0c1b7',
+          400: '#d3a092',
+          500: '#c07e6e',
+          600: '#a36355',
+          700: '#8c5145',
+          800: '#75453a',
+          900: '#623c34',
         }
       }
     },
