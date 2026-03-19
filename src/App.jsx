@@ -20,6 +20,36 @@ const rawData = [
   { nombre: "Porque las mejores historias de amor", resultados: 10, indicador: "Mensajes a WhatsApp", costo: 3008.1, gasto: 30081, alcance: 2839 },
 ];
 
+const KPICard = ({ title, value, subValue, icon, color, accent }) => (
+  <div className={`bg-white p-8 rounded-[2.5rem] shadow-sm border ${accent} hover:shadow-xl hover:shadow-amber-900/5 transition-all duration-300`}>
+    <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center mb-6`}>
+      {icon}
+    </div>
+    <div>
+      <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{title}</h3>
+      <p className="text-3xl font-black text-slate-900">{value}</p>
+      <p className="text-[11px] text-slate-500 mt-2 font-bold bg-slate-50 inline-block px-2 py-1 rounded-lg">{subValue}</p>
+    </div>
+  </div>
+);
+
+const MetricProgress = ({ label, cost, max, color }) => (
+  <div className="space-y-3">
+    <div className="flex justify-between items-end">
+      <span className="text-xs font-black text-slate-500 uppercase tracking-tighter">{label}</span>
+      <span className="text-sm font-black text-amber-900">
+        {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(cost)}
+      </span>
+    </div>
+    <div className="w-full bg-amber-50 h-2.5 rounded-full overflow-hidden border border-amber-100/50">
+      <div 
+        className={`${color} h-full rounded-full transition-all duration-1000 ease-out shadow-inner`} 
+        style={{ width: `${Math.min((cost / max) * 100, 100)}%` }}
+      ></div>
+    </div>
+  </div>
+);
+
 const App = () => {
   const totals = useMemo(() => {
     const categories = {
@@ -198,37 +228,5 @@ const App = () => {
     </div>
   );
 };
-
-const KPICard = ({ title, value, subValue, icon, color, accent }) => (
-  <div className={`bg-white p-8 rounded-[2.5rem] shadow-sm border ${accent} hover:shadow-xl hover:shadow-amber-900/5 transition-all duration-300`}>
-    <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center mb-6`}>
-      {icon}
-    </div>
-    <div>
-      <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{title}</h3>
-      <p className="text-3xl font-black text-slate-900">{value}</p>
-      <p className="text-[11px] text-slate-500 mt-2 font-bold bg-slate-50 inline-block px-2 py-1 rounded-lg">{subValue}</p>
-    </div>
-  </div>
-);
-
-const MetricProgress = ({ label, cost, max, color }) => (
-  <div className="space-y-3">
-    <div className="flex justify-between items-end">
-      <span className="text-xs font-black text-slate-500 uppercase tracking-tighter">{label}</span>
-      <span className="text-sm font-black text-amber-900">
-        {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(cost)}
-      </span>
-    </div>
-    <div className="w-full bg-amber-50 h-2.5 rounded-full overflow-hidden border border-amber-100/50">
-      <div 
-        className={`${color} h-full rounded-full transition-all duration-1000 ease-out shadow-inner`} 
-        style={{ width: `${Math.min((cost / max) * 100, 100)}%` }}
-      ></div>
-    </div>
-  </div>
-);
-
-export default App;
 
 export default App;
