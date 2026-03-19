@@ -1,156 +1,234 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { 
-  TrendingUp, 
-  Users, 
   MessageCircle, 
+  MousePointer2, 
+  Users, 
+  TrendingUp, 
   DollarSign, 
-  ChevronDown, 
-  ChevronUp,
-  Info,
-  Layers
+  BarChart3,
+  Layers,
+  ArrowUpRight,
+  ShoppingBag
 } from 'lucide-react';
 
+const rawData = [
+  { nombre: "Kami se puso la 10 mostrando los nuevos platos de Tadeo Chocolatería", resultados: 288, indicador: "Visitas al Perfil", costo: 152.94, gasto: 44048, alcance: 7041 },
+  { nombre: "Hay pecados que se disfrutan... y Tadeo es uno de ellos", resultados: 300, indicador: "Visitas al Perfil", costo: 158.38, gasto: 47516, alcance: 14743 },
+  { nombre: "La que todos piden, la que todos aman", resultados: 18550, indicador: "Interacciones", costo: 4.31, gasto: 80000, alcance: 32265 },
+  { nombre: "Storia d'Amore", resultados: 30, indicador: "Mensajes a WhatsApp", costo: 2413.1, gasto: 72393, alcance: 6232 },
+  { nombre: "Salí a buscar los bombones más ricos de toda la ciudad", resultados: 43, indicador: "Mensajes a WhatsApp", costo: 1859.74, gasto: 79969, alcance: 3645 },
+  { nombre: "Porque las mejores historias de amor", resultados: 10, indicador: "Mensajes a WhatsApp", costo: 3008.1, gasto: 30081, alcance: 2839 },
+];
+
 const App = () => {
-  const [expandedCampaign, setExpandedCampaign] = useState(null);
+  const totals = useMemo(() => {
+    const categories = {
+      "Mensajes a WhatsApp": { spend: 0, res: 0 },
+      "Interacciones": { spend: 0, res: 0 },
+      "Visitas al Perfil": { spend: 0, res: 0 }
+    };
 
-  const campaigns = [
-    { id: 1, name: "La Navidad sabe a chocolate en Tadeo Chocolatería", results: 3, type: "Mensajes a WhatsApp", costPerResult: 3690, budget: 80000, spent: 11070, impressions: 3709, reach: 3348 },
-    { id: 2, name: "El nuevo brunch en Cúcuta ya tiene nombre", results: 19, type: "Mensajes a WhatsApp", costPerResult: 2756.89, budget: 60000, spent: 52381, impressions: 6154, reach: 3432 },
-    { id: 3, name: "Enero sabe mejor con chocolate", results: 14, type: "Mensajes a WhatsApp", costPerResult: 4285.07, budget: 60000, spent: 59991, impressions: 6542, reach: 3525 },
-    { id: 4, name: "Kami se puso la 10 mostrando los nuevos platos", results: 600, type: "Visitas al Perfil", costPerResult: 133.19, budget: 80000, spent: 79915, impressions: 16725, reach: 11242 },
-    { id: 5, name: "Hay pecados que se disfrutan... y Tadeo es uno de ellos", results: 523, type: "Visitas al Perfil", costPerResult: 152.96, budget: 80000, spent: 80000, impressions: 41110, reach: 21606 },
-    { id: 6, name: "La que todos piden, la que todos aman", results: 18550, type: "Interacción con Publicaciones", costPerResult: 4.31, budget: 80000, spent: 80000, impressions: 49694, reach: 32265 },
-    { id: 7, name: "Storia d'Amore", results: 30, type: "Mensajes a WhatsApp", costPerResult: 2413.10, budget: 80000, spent: 72393, impressions: 10914, reach: 6232 },
-    { id: 8, name: "Salí a buscar los bobones más ricos", results: 43, type: "Mensajes a WhatsApp", costPerResult: 1859.74, budget: 80000, spent: 79969, impressions: 6711, reach: 3645 },
-    { id: 10, name: "Porque las mejores historias de amor", results: 10, type: "Mensajes a WhatsApp", costPerResult: 3008.10, budget: 80000, spent: 30081, impressions: 4263, reach: 2839 }
-  ];
+    let totalSpend = 0;
+    let totalReach = 0;
 
-  const totals = {
-    spent: campaigns.reduce((acc, curr) => acc + curr.spent, 0),
-    reach: campaigns.reduce((acc, curr) => acc + curr.reach, 0),
-    impressions: campaigns.reduce((acc, curr) => acc + curr.impressions, 0),
-    whatsapp: campaigns.filter(c => c.type === "Mensajes a WhatsApp").reduce((acc, curr) => acc + curr.results, 0),
-  };
+    rawData.forEach(item => {
+      if (categories[item.indicador]) {
+        categories[item.indicador].spend += item.gasto;
+        categories[item.indicador].res += item.resultados;
+      }
+      totalSpend += item.gasto;
+      totalReach += item.alcance;
+    });
 
-  const MetricCard = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-50 flex items-center space-x-4 transition-transform hover:scale-[1.02]">
-      <div className={`p-3.5 rounded-2xl ${color} shadow-lg shadow-black/5`}>
-        <Icon size={20} className="text-white" />
-      </div>
-      <div>
-        <p className="text-[10px] text-amber-900/40 font-bold uppercase tracking-[0.15em] mb-0.5">{title}</p>
-        <p className="text-xl font-extrabold text-[#3D1D11] leading-tight">{value}</p>
-      </div>
-    </div>
-  );
+    return { categories, totalSpend, totalReach };
+  }, []);
+
+  const formatCurrency = (val) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(val);
+  const formatNumber = (val) => new Intl.NumberFormat('es-CO').format(val);
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3] pb-12 selection:bg-orange-200">
-      <header className="bg-[#3D1D11] text-white pt-10 pb-12 px-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-        <div className="flex justify-between items-start relative z-10">
-          <div>
-            <h1 className="text-3xl font-playfair italic tracking-tight mb-1">Tadeo Chocolatería</h1>
-            <p className="text-orange-300/80 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
-              Reporte de Datos Ene-Feb
-            </p>
+    <div className="min-h-screen bg-orange-50/30 p-4 md:p-8 font-sans text-slate-900">
+      {/* Header */}
+      <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="bg-amber-800 p-3 rounded-2xl shadow-lg">
+            <ShoppingBag className="w-8 h-8 text-white" />
           </div>
-          <div className="bg-white/10 p-2.5 rounded-xl border border-white/20 backdrop-blur-sm">
-            <Layers size={22} className="text-orange-200" />
+          <div>
+            <h1 className="text-3xl font-black text-amber-900 tracking-tight leading-none">Tadeo Chocolatería</h1>
+            <p className="text-amber-700/70 mt-1 uppercase text-xs font-bold tracking-widest">Panel de Rendimiento Publicitario</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-amber-100">
+          <div className="bg-amber-100 p-2 rounded-xl">
+            <DollarSign className="w-6 h-6 text-amber-700" />
+          </div>
+          <div>
+            <p className="text-[10px] text-amber-600 font-black uppercase tracking-tighter">Inversión Total</p>
+            <p className="text-xl font-black text-amber-900">{formatCurrency(totals.totalSpend)}</p>
           </div>
         </div>
       </header>
 
-      <main className="px-5 mt-[-35px]">
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <MetricCard title="Inversión" value={`$${totals.spent.toLocaleString()}`} icon={DollarSign} color="bg-[#633526]" />
-          <MetricCard title="Alcance" value={totals.reach.toLocaleString()} icon={Users} color="bg-orange-600" />
-          <MetricCard title="Impresiones" value={totals.impressions.toLocaleString()} icon={TrendingUp} color="bg-[#8B4513]" />
-          <MetricCard title="Mensajes" value={totals.whatsapp} icon={MessageCircle} color="bg-[#2D5A27]" />
-        </section>
+      {/* Main KPIs */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <KPICard 
+          title="Mensajes WhatsApp" 
+          value={totals.categories["Mensajes a WhatsApp"].res} 
+          subValue={`Costo Prom: ${formatCurrency(totals.categories["Mensajes a WhatsApp"].spend / totals.categories["Mensajes a WhatsApp"].res)}`}
+          icon={<MessageCircle className="w-6 h-6 text-emerald-600" />}
+          color="bg-emerald-50"
+          accent="border-emerald-100"
+        />
+        <KPICard 
+          title="Interacciones" 
+          value={formatNumber(totals.categories["Interacciones"].res)} 
+          subValue={`Costo Prom: ${formatCurrency(totals.categories["Interacciones"].spend / totals.categories["Interacciones"].res)}`}
+          icon={<MousePointer2 className="w-6 h-6 text-blue-600" />}
+          color="bg-blue-50"
+          accent="border-blue-100"
+        />
+        <KPICard 
+          title="Visitas al Perfil" 
+          value={formatNumber(totals.categories["Visitas al Perfil"].res)} 
+          subValue={`Costo Prom: ${formatCurrency(totals.categories["Visitas al Perfil"].spend / totals.categories["Visitas al Perfil"].res)}`}
+          icon={<Users className="w-6 h-6 text-amber-600" />}
+          color="bg-amber-50"
+          accent="border-amber-100"
+        />
+        <KPICard 
+          title="Alcance Total" 
+          value={formatNumber(totals.totalReach)} 
+          subValue="Personas alcanzadas"
+          icon={<BarChart3 className="w-6 h-6 text-rose-600" />}
+          color="bg-rose-50"
+          accent="border-rose-100"
+        />
+      </div>
 
-        <section className="bg-white/80 backdrop-blur-sm border border-amber-100/50 rounded-[2rem] p-5 mb-8 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 bg-amber-100 rounded-lg">
-              <Info size={14} className="text-amber-800" />
-            </div>
-            <h2 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-amber-900/60 font-sans">Glosario de Datos</h2>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Table Section */}
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-xl shadow-amber-900/5 border border-amber-50 overflow-hidden">
+          <div className="p-8 border-b border-slate-50">
+            <h2 className="text-xl font-black flex items-center gap-3 text-amber-900">
+              <Layers className="w-6 h-6 text-amber-600" />
+              Desglose de Campañas
+            </h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-amber-50/50 p-3 rounded-2xl">
-              <span className="font-bold block text-[10px] text-amber-900 mb-1 uppercase tracking-wider font-sans">Alcance</span> 
-              <p className="text-[11px] text-amber-800/80 leading-snug font-medium font-sans">Usuarios únicos que vieron tus anuncios.</p>
-            </div>
-            <div className="bg-amber-50/50 p-3 rounded-2xl">
-              <span className="font-bold block text-[10px] text-amber-900 mb-1 uppercase tracking-wider font-sans">Costo x Res.</span> 
-              <p className="text-[11px] text-amber-800/80 leading-snug font-medium font-sans">Inversión promedio por cada acción lograda.</p>
-            </div>
-          </div>
-        </section>
-
-        <div className="space-y-4">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-900/30 ml-2 mb-3 font-sans">Resultados por Campaña</h2>
-          {campaigns.map((camp) => (
-            <div key={camp.id} className="bg-white rounded-[2rem] border border-amber-100/60 overflow-hidden shadow-sm transition-all hover:shadow-md">
-              <div className="p-5 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform" onClick={() => setExpandedCampaign(expandedCampaign === camp.id ? null : camp.id)}>
-                <div className="flex items-center gap-4">
-                  <div className={`w-2 h-12 rounded-full ${camp.type === 'Mensajes a WhatsApp' ? 'bg-[#4CAF50]' : 'bg-[#FF9800]'}`}></div>
-                  <div>
-                    <h3 className="text-[13px] font-bold text-[#3D1D11] leading-tight mb-1.5 font-playfair">{camp.name}</h3>
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${camp.type === 'Mensajes a WhatsApp' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'}`}>
-                        {camp.results} {camp.type.split(' ')[0]}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-amber-50/30 text-amber-800/40 text-[10px] font-black uppercase tracking-widest">
+                  <th className="px-8 py-5">Campaña</th>
+                  <th className="px-8 py-5">Resultados</th>
+                  <th className="px-8 py-5 text-right">Costo/R</th>
+                  <th className="px-8 py-5 text-right">Gasto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-amber-50/50">
+                {rawData.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-amber-50/20 transition-all group">
+                    <td className="px-8 py-5">
+                      <p className="text-sm font-bold text-slate-800 line-clamp-1 mb-1">{item.nombre}</p>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter ${
+                        item.indicador.includes('Mensajes') ? 'bg-emerald-100 text-emerald-700' : 
+                        item.indicador.includes('Interacciones') ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {item.indicador}
                       </span>
-                      <span className="text-[10px] font-semibold text-amber-900/40 font-sans">${camp.spent.toLocaleString()} invertidos</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-amber-50 p-2 rounded-full">
-                   {expandedCampaign === camp.id ? <ChevronUp size={18} className="text-amber-800" /> : <ChevronDown size={18} className="text-amber-800" />}
-                </div>
-              </div>
-              {expandedCampaign === camp.id && (
-                <div className="px-5 pb-6 pt-2 bg-amber-50/30 border-t border-amber-50/50 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="grid grid-cols-3 gap-3 mb-5">
-                    <div className="bg-white p-3 rounded-2xl border border-amber-100/50">
-                      <p className="text-[9px] uppercase font-bold text-amber-400 mb-1 font-sans">Costo x Res.</p>
-                      <p className="text-sm font-extrabold text-[#3D1D11] font-sans">${camp.costPerResult.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-2xl border border-amber-100/50">
-                      <p className="text-[9px] uppercase font-bold text-amber-400 mb-1 font-sans">Alcance</p>
-                      <p className="text-sm font-extrabold text-[#3D1D11] font-sans">{camp.reach.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-2xl border border-amber-100/50">
-                      <p className="text-[9px] uppercase font-bold text-amber-400 mb-1 font-sans">Presupuesto</p>
-                      <p className="text-sm font-extrabold text-[#3D1D11] font-sans">${(camp.budget/1000).toFixed(0)}k</p>
-                    </div>
-                  </div>
-                  <div className="mt-2 bg-white/60 p-4 rounded-2xl border border-white">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-bold uppercase text-amber-900/50 tracking-widest font-sans">Ejecución del Presupuesto</span>
-                      <span className="text-[10px] font-black text-[#3D1D11] bg-orange-100 px-2 py-0.5 rounded-full font-sans">{Math.round((camp.spent/camp.budget)*100)}%</span>
-                    </div>
-                    <div className="w-full bg-amber-100/50 h-2.5 rounded-full overflow-hidden p-0.5 border border-amber-200/20">
-                      <div className={`h-full rounded-full transition-all duration-1000 ease-out ${camp.type === 'Mensajes a WhatsApp' ? 'bg-[#4CAF50]' : 'bg-[#FF9800]'}`} style={{ width: `${(camp.spent/camp.budget)*100}%` }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+                    </td>
+                    <td className="px-8 py-5">
+                      <p className="text-base font-black text-slate-900">{formatNumber(item.resultados)}</p>
+                    </td>
+                    <td className="px-8 py-5 text-right font-medium text-slate-500 text-sm">
+                      {formatCurrency(item.costo)}
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <p className="text-sm font-black text-slate-800">{formatCurrency(item.gasto)}</p>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </main>
 
-      <footer className="mt-12 px-8 text-center">
-        <div className="inline-flex flex-col items-center">
-          <div className="w-10 h-1 bg-amber-200 rounded-full mb-4"></div>
-          <p className="text-[10px] font-bold text-amber-900/30 uppercase tracking-[0.4em] font-sans">Reporte Oficial de Métricas</p>
-          <p className="text-[10px] font-playfair italic text-amber-900/20 mt-1">Calidad Artesanal en cada dato</p>
+        {/* Side Metrics */}
+        <div className="space-y-6">
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-amber-900/5 border border-amber-50">
+            <h3 className="font-black text-amber-900 mb-8 flex items-center gap-3">
+              <TrendingUp className="w-6 h-6 text-amber-600" />
+              Eficiencia por Canal
+            </h3>
+            <div className="space-y-8">
+              <MetricProgress 
+                label="Conversión WhatsApp" 
+                cost={totals.categories["Mensajes a WhatsApp"].spend / totals.categories["Mensajes a WhatsApp"].res} 
+                max={3500}
+                color="bg-emerald-500"
+              />
+              <MetricProgress 
+                label="Interacciones" 
+                cost={totals.categories["Interacciones"].spend / totals.categories["Interacciones"].res} 
+                max={200}
+                color="bg-blue-500"
+              />
+              <MetricProgress 
+                label="Tráfico Perfil" 
+                cost={totals.categories["Visitas al Perfil"].spend / totals.categories["Visitas al Perfil"].res} 
+                max={1000}
+                color="bg-amber-500"
+              />
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-amber-800 to-amber-950 p-8 rounded-[2.5rem] shadow-2xl shadow-amber-900/20 text-white relative overflow-hidden group">
+            <div className="relative z-10">
+              <h4 className="text-amber-200/60 text-[10px] font-black uppercase tracking-widest mb-2">Alcance de Marca</h4>
+              <p className="text-5xl font-black mb-4 tracking-tighter">{formatNumber(totals.totalReach)}</p>
+              <div className="flex items-center gap-2 text-amber-200/80 text-sm font-bold">
+                <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <span>Impacto en clientes potenciales</span>
+              </div>
+            </div>
+            <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-white/5 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+          </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
+
+const KPICard = ({ title, value, subValue, icon, color, accent }) => (
+  <div className={`bg-white p-8 rounded-[2.5rem] shadow-sm border ${accent} hover:shadow-xl hover:shadow-amber-900/5 transition-all duration-300`}>
+    <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center mb-6`}>
+      {icon}
+    </div>
+    <div>
+      <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{title}</h3>
+      <p className="text-3xl font-black text-slate-900">{value}</p>
+      <p className="text-[11px] text-slate-500 mt-2 font-bold bg-slate-50 inline-block px-2 py-1 rounded-lg">{subValue}</p>
+    </div>
+  </div>
+);
+
+const MetricProgress = ({ label, cost, max, color }) => (
+  <div className="space-y-3">
+    <div className="flex justify-between items-end">
+      <span className="text-xs font-black text-slate-500 uppercase tracking-tighter">{label}</span>
+      <span className="text-sm font-black text-amber-900">
+        {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(cost)}
+      </span>
+    </div>
+    <div className="w-full bg-amber-50 h-2.5 rounded-full overflow-hidden border border-amber-100/50">
+      <div 
+        className={`${color} h-full rounded-full transition-all duration-1000 ease-out shadow-inner`} 
+        style={{ width: `${Math.min((cost / max) * 100, 100)}%` }}
+      ></div>
+    </div>
+  </div>
+);
+
+export default App;
 
 export default App;
